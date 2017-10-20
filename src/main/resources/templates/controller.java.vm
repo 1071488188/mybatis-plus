@@ -1,0 +1,115 @@
+package ${package.Controller};
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+#if(${restControllerStyle})
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+#else
+import org.springframework.stereotype.Controller;
+#end
+#if(${superControllerClassPackage})
+import ${superControllerClassPackage};
+#end
+import org.springframework.beans.factory.annotation.Autowired;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
+import ${package.Service}.${table.serviceName};
+import ${package.Entity}.${entity};
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.alibaba.fastjson.JSONObject;
+import com.sourceprogram.util.ErrorCode;
+import com.sourceprogram.util.RespMessage;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ *code is far away from bug with the animal protecting
+ *
+ *   @description : ${entity} 控制器
+ *   ---------------------------------
+ *      @author ${author}
+ *   @since ${date}
+ */
+@Slf4j
+#if(${restControllerStyle})
+@RestController
+#else
+@Controller
+#end
+@RequestMapping("#if(${package.ModuleName})/${package.ModuleName}#end/#if(${controllerMappingHyphenStyle})${controllerMappingHyphen}#else${table.entityPath}#end")
+#if(${superControllerClass})
+public class ${table.controllerName} extends ${superControllerClass} {
+#else
+public class ${table.controllerName} {
+#end
+@Autowired
+public ${table.serviceName} ${table.entityPath}Service;
+
+/**
+ * @description : 获取分页列表
+ * ---------------------------------
+ * @author : ${author}
+ * @since : Create in ${date}
+ */
+@RequestMapping(value = "/get${entity}List", method = RequestMethod.POST)
+public JSONObject get${entity}List(@RequestBody ${entity} param,@RequestParam(value = "pageSize") Integer pageSize,@RequestParam(value = "page") Integer page){
+        JSONObject json=new JSONObject();
+        RespMessage respMessage=new RespMessage();
+        Integer pageNo=getPageNo(page,pageSize);
+        Page<${entity}> pager=new Page<${entity}>(pageNo,pageSize);
+    ${table.entityPath}Service.selectPage(pager,new EntityWrapper<${entity}>(param));
+        json.put("totalCount",pager.getTotal());
+        json.put("list",pager.getRecords());
+        return new RespMessage(ErrorCode.E00000000.CODE,ErrorCode.E00000000.MSG,json).getRespMessage();
+        }
+
+/**
+ * @description : 通过id获取${entity}
+ * ---------------------------------
+ * @author : ${author}
+ * @since : Create in ${date}
+ */
+@RequestMapping(value = "/get${entity}ById", method = RequestMethod.GET)
+public Object get${entity}ById(String id){
+        RespMessage respMessage=new RespMessage();
+    ${entity} param= ${table.entityPath}Service.selectById(id);
+        return new RespMessage(ErrorCode.E00000000.CODE,ErrorCode.E00000000.MSG,param).getRespMessage();
+        }
+
+/**
+ * @description : 通过id删除${entity}
+ * ---------------------------------
+ * @author : ${author}
+ * @since : Create in ${date}
+ */
+@RequestMapping(value = "/delete${entity}ById", method = RequestMethod.GET)
+public Object delete${entity}ById(String id){
+    ${table.entityPath}Service.deleteById(id);
+        return new RespMessage(ErrorCode.E00000000.CODE,ErrorCode.E00000000.MSG,null).getRespMessage();
+        }
+
+/**
+ * @description : 通过id更新${entity}
+ * ---------------------------------
+ * @author : ${author}
+ * @since : Create in ${date}
+ */
+@RequestMapping(value = "/update${entity}ById", method = RequestMethod.POST)
+public Object update${entity}ById(${entity} param){
+    ${table.entityPath}Service.updateById(param);
+        return new RespMessage(ErrorCode.E00000000.CODE,ErrorCode.E00000000.MSG,null).getRespMessage();
+        }
+
+/**
+ * @description : 添加${entity}
+ * ---------------------------------
+ * @author : ${author}
+ * @since : Create in ${date}
+ */
+@RequestMapping(value = "/add${entity}", method = RequestMethod.POST)
+public Object add${entity}(${entity} param){
+    ${table.entityPath}Service.insert(param);
+        return new RespMessage(ErrorCode.E00000000.CODE,ErrorCode.E00000000.MSG,null).getRespMessage();
+        }
+        }
